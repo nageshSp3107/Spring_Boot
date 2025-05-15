@@ -2,6 +2,7 @@ package com.example.demo.controllers
 
 import com.example.demo.database.model.Note
 import com.example.demo.database.repository.NoteRepository
+import org.apache.juli.logging.Log
 import org.bson.types.ObjectId
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
+import java.util.logging.Logger
 
 //POST http://localhost:8089/notes
-//GET http://localhost:8089/notes?ownerId=123
+//GET http://localhost:8089/notes/?ownerId=123
+//DELETE http://localhost:8089/notes/Id
 
 @RestController
-@RequestMapping("/notes")
+@RequestMapping("notes")
 class NotesController(
     private val repository: NoteRepository
 ) {
@@ -37,7 +40,7 @@ class NotesController(
         val createdAt: Instant
     )
 
-    @PostMapping
+    @PostMapping()
     fun save(
         @RequestBody body: NoteRequest
     ): NoteResponse{
@@ -53,16 +56,18 @@ class NotesController(
         return note.toResponse()
     }
 
-    @GetMapping
+    @GetMapping("/")
     fun findByOwnerId(
     @RequestParam(required = true) ownerId: String
-    ): List<NoteResponse>{
-        return repository.findByOwnerId(ObjectId(ownerId)).map {
-            it.toResponse()
+    ): NoteResponse?{
+        try {
+            return repository.findByOwnerId(ObjectId(ownerId)).toResponse()
+        }catch (e: Exception){
+            return null
         }
     }
 
-    @GetMapping("notes")
+    @GetMapping()
     fun findNotes(): List<NoteResponse>{
         return repository.findAll().map {
             it.toResponse()
