@@ -26,9 +26,9 @@ Data persistence is managed with **MongoDB**.
   - MongoDB
   - Gradle (Kotlin DSL)
 
-🔑 API Endpoints
+## 🔑 API Endpoints
 
-Authentication
+**Authentication**
 | Method | Endpoint             | Description       |
 | ------ | -------------------- | ----------------- |
 | POST   | `/api/auth/register` | Register new user |
@@ -36,7 +36,7 @@ Authentication
 | POST   | `/api/auth/refresh`  | Refresh JWT token |
 
 
-Notes (Requires JWT in Authorization: Bearer <token>)
+**Notes** (Requires JWT in Authorization: Bearer <token>)
 | Method | Endpoint          | Description     |
 | ------ | ----------------- | --------------- |
 | POST   | `/api/notes`      | Create new note |
@@ -46,7 +46,7 @@ Notes (Requires JWT in Authorization: Bearer <token>)
 | DELETE | `/api/notes/{id}` | Delete a note   |
 
 
-✅ Future Improvements
+## ✅ Future Improvements
 
 Role-based access control (Admin/User)
 
