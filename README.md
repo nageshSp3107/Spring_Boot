@@ -26,8 +26,6 @@ Data persistence is managed with **MongoDB**.
   - MongoDB
   - Gradle (Kotlin DSL)
 
----
-
 🔑 API Endpoints
 
 Authentication
@@ -57,3 +55,5 @@ Unit & Integration Tests
 Swagger/OpenAPI documentation
 
 Docker Compose for MongoDB + App
+
+---
