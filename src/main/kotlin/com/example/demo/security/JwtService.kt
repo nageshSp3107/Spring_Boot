@@ -5,18 +5,21 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.security.MessageDigest
 import java.util.Base64
 import java.util.Date
 
 @Service
 class JwtService(
-    @Value("jwt.secret") private val jwtSecretKey: String
+    @Value("\${jwt.secret}") private val jwtSecretKey: String
 ) {
-
-    private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecretKey))
+    private val base = jwtSecretKey
+    private val sha256 = MessageDigest.getInstance("SHA-256").digest(base.toByteArray())
+    private val base64Key = Base64.getEncoder().encodeToString(sha256)
+    private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(base64Key))
 
     private val accessTokenValidityMs = 15L * 60 * 1000
-    private val refreshTokenValidityMs = 30L * 24 * 60 * 60 * 1000
+    val refreshTokenValidityMs = 30L * 24 * 60 * 60 * 1000
 
     private fun generateToken(
         userId: String,

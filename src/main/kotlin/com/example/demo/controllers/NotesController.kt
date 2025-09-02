@@ -2,8 +2,10 @@ package com.example.demo.controllers
 
 import com.example.demo.database.model.Note
 import com.example.demo.database.repository.NoteRepository
+import com.example.demo.security.SecurityConfig
 import org.apache.juli.logging.Log
 import org.bson.types.ObjectId
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -44,26 +46,27 @@ class NotesController(
     fun save(
         @RequestBody body: NoteRequest
     ): NoteResponse{
+        val ownerId = SecurityContextHolder.getContext().authentication.principal as String
+
         val note = repository.save(Note(
             id = body.id?.let { ObjectId(it) } ?: ObjectId.get(),
             title = body.title,
             content = body.content,
             color = body.color,
             createdAt = Instant.now(),
-            ownerId = ObjectId()
+            ownerId = ObjectId(ownerId)
         )
         )
         return note.toResponse()
     }
 
     @GetMapping("/")
-    fun findByOwnerId(
-    @RequestParam(required = true) ownerId: String
-    ): NoteResponse?{
-        try {
-            return repository.findByOwnerId(ObjectId(ownerId)).toResponse()
+    fun findByOwnerId(): NoteResponse?{
+        val ownerId = SecurityContextHolder.getContext().authentication.principal as String
+        return try {
+             repository.findByOwnerId(ObjectId(ownerId)).toResponse()
         }catch (e: Exception){
-            return null
+            null
         }
     }
 
@@ -77,7 +80,11 @@ class NotesController(
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(
         @PathVariable id: String){
-        repository.deleteById(ObjectId(id))
+        val note = repository.findById(ObjectId(id)).orElseThrow { IllegalArgumentException("Note not found with id: $id") }
+        val ownerId = SecurityContextHolder.getContext().authentication.principal as String
+        if (note.ownerId.toHexString() == ownerId){
+            repository.deleteById(ObjectId(id))
+        }
     }
 
     private fun Note.toResponse(): NotesController.NoteResponse{
